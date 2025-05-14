@@ -21,6 +21,9 @@ resources/
 └── db.properties
 ```
 
+## Architecture
+L'API est conçue avec une architecture modulaire, utilisant des interfaces et des classes d'implémentation pour chaque type de SGBD. L'interface `DatabaseManager` définit les méthodes communes pour la connexion, l'exécution de requêtes, et la gestion des résultats. Chaque gestionnaire (MySQL, PostgreSQL, SQL Server) implémente cette interface, permettant une gestion uniforme des différentes bases de données.
+
 ## Fonctionnalités
 1. **Connexion à la base de données** : Méthodes pour se connecter à un SGBD donné (type, URL, utilisateur, mot de passe).
 2. **Exécution de requêtes SQL** : Support pour les requêtes SELECT, INSERT, UPDATE, DELETE, avec retour des résultats sous forme de `List<Map<String, Object>>`.
@@ -76,6 +79,12 @@ public class Main {
     }
 }
 ```
+
+## Tests
+Les tests unitaires sont écrits avec JUnit et utilisent un jeu de données stocké dans un fichier .csv. Les tests vérifient la connexion, l'exécution de requêtes, et la gestion des erreurs.
+
+## Gestion des Erreurs
+L'API gère les erreurs de manière robuste, en fournissant des messages clairs et personnalisés pour les exceptions SQL. Les connexions, requêtes, et résultats sont automatiquement fermés grâce à l'utilisation de try-with-resources.
 
 ## Documentation
 Pour plus d'informations sur l'utilisation de l'API, consultez le fichier `db.properties` pour les paramètres de connexion et les exemples de code dans `Main.java`.
