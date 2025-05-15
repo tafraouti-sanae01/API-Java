@@ -87,7 +87,6 @@ public class PostgreSQLManager implements DatabaseManager {
         }
     }
 
-    // Méthode spécifique à PostgreSQL pour les fonctionnalités avancées
     public List<String> getDatabaseList() throws Exception {
         List<String> databases = new ArrayList<>();
         try (Statement stmt = connection.createStatement();

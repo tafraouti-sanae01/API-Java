@@ -17,12 +17,10 @@ public class SQLServerManager implements DatabaseManager {
     private String password;
 
     public SQLServerManager(String url, String username, String password) {
-        // Configuration pour l'authentification Windows
         this.url = "jdbc:sqlserver://" + url + ";databaseName=TestAPI;integratedSecurity=true;encrypt=false;trustServerCertificate=true;";
         this.username = username;
         this.password = password;
 
-        // Nécessite d'ajouter mssql-jdbc_auth.dll au classpath
         System.setProperty("java.library.path", "C:/sqljdbc_<version>/enu/auth/x64");
     }
 

@@ -33,8 +33,8 @@ public class Main {
             );
             testDatabase(postgresManager, "employees");
 
-            // Test SQL Server avec Authentification Windows
-            System.out.println("\n=== SQL Server (Windows Auth) ===");
+            // Test SQL Server
+            System.out.println("\n=== SQL Server ===");
             DatabaseManager sqlServerManager = new SQLServerManager(
                     props.getProperty("sqlserver.url"),
                     props.getProperty("sqlserver.username"),
@@ -56,14 +56,7 @@ public class Main {
             System.out.println("Nombre d'enregistrements : " + results.size());
 
             for (Map<String, Object> row : results) {
-                System.out.printf(
-                        "ID: %d, Nom: %s %s, Email: %s, Salaire: %.2f\n",
-                        row.get("id"),
-                        row.get("first_name"),
-                        row.get("last_name"),
-                        row.get("email"),
-                        row.get("salary")
-                );
+                System.out.println(row);
             }
 
             int affectedRows = manager.executeUpdate(
