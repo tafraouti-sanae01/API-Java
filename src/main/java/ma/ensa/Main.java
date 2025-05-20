@@ -38,7 +38,7 @@ public class Main {
             DatabaseManager sqlServerManager = new SQLServerManager(
                     props.getProperty("sqlserver.url"),
                     props.getProperty("sqlserver.username"),
-                    ""
+                    props.getProperty("sqlserver.password")
             );
             testDatabase(sqlServerManager, "employees");
 
@@ -47,26 +47,53 @@ public class Main {
         }
     }
 
-    private static void testDatabase(DatabaseManager manager, String tableName) throws Exception {
+    private static void testDatabase(DatabaseManager manager, String tableName)
+            throws Exception {
         try {
+            // Connexion
             manager.connect();
-            System.out.println("Connecté : " + manager.isConnected());
+            System.out.println("Statut de la connexion : " + manager.isConnected());
 
-            List<Map<String, Object>> results = manager.executeQuery("SELECT * FROM " + tableName);
-            System.out.println("Nombre d'enregistrements : " + results.size());
+            // Execution d'une requete SELECT
+            System.out.println("\n--- Avant l'insertion et suppression ---");
+            List<Map<String, Object>> results1 = manager.executeQuery
+                    ("SELECT * FROM " + tableName);
 
-            for (Map<String, Object> row : results) {
+            // Affichage des resultats
+            System.out.println("\nResultats de la requete :");
+            for (Map<String, Object> row : results1) {
                 System.out.println(row);
             }
 
-            int affectedRows = manager.executeUpdate(
-                    "INSERT INTO " + tableName + " VALUES (4, 'Test', 'User', 'test.user@email.com', 3000.00)");
-            System.out.println("Lignes insérées : " + affectedRows);
+            // Exemple d'insertion
+            int affectedRows1 = manager.executeUpdate(
+                    "INSERT INTO " + tableName + " VALUES (4, 'Test1','User1','test1.user1@email.com', 4700.00)");
+            System.out.println("Lignes insérées (4, 'Test1', 'User1', 'test1.user1@email.com', 4700.00) : " + affectedRows1);
 
+
+            int affectedRows2 = manager.executeUpdate(
+                    "INSERT INTO " + tableName + " VALUES (5, 'Test2','User2','test2.user2@email.com', 3000.00)");
+            System.out.println("Lignes insérées (5, 'Test2', 'User2', 'test2.user2@email.com', 3000.00) : " + affectedRows2);
+
+            // Nettoyage
             manager.executeUpdate("DELETE FROM " + tableName + " WHERE id = 4");
+            System.out.println("\nSuppression de l'enregistrement : (4, 'Test1', 'User1', 'test1.user1@email.com', 4700.00) ");
+            manager.executeUpdate("DELETE FROM " + tableName + " WHERE id = 4");
+            manager.executeUpdate("DELETE FROM " + tableName + " WHERE id = 5");
+
+
+            System.out.println("\n\n--- Apres l'insertion et suppression ---");
+            List<Map<String, Object>> results2 = manager.executeQuery("SELECT * FROM " + tableName);
+
+            System.out.println("Nombre d'enregistrements : " + results2.size());
+            for (Map<String, Object> row : results2) {
+                System.out.println(row);
+            }
+
         } finally {
+            // Fermeture propre
             manager.disconnect();
-            System.out.println("Déconnecté\n");
+            System.out.println("\nConnexion fermee");
         }
     }
 }
