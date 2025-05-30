@@ -114,13 +114,12 @@ Le projet inclut des tests unitaires pour chaque implémentation de SGBD, vérif
 ## Compilation et Exécution
 Pour compiler et exécuter le projet :
 ```bash
-mvn clean package
-java -jar target/api-java-1.0-SNAPSHOT.jar
+mvn test
 ```
 
-## Gestion des Erreurs
-L'API gère les erreurs de manière robuste :
-- Vérification de l'état de la connexion
-- Gestion des exceptions SQL
-- Fermeture automatique des ressources
-- Messages d'erreur clairs et informatifs
+## Génération du fichier .jar
+Pour générer l’archive .jar de l’application
+```bash
+mvn clean package
+```
+
