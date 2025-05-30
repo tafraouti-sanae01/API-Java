@@ -1,90 +1,126 @@
 # API-Java
 
 ## Objectif
-Ce projet vise à développer une API Java packagée en fichier .jar qui offre une interface unifiée pour la gestion de l'accès à différents systèmes de gestion de base de données relationnelles (SGBDR), tels que MySQL, PostgreSQL, SQL Server et Oracle. L'objectif est de masquer les différences techniques entre les SGBD et de fournir une API simple et uniforme pour faciliter l'interaction avec plusieurs types de bases de données.
+Ce projet développe une API Java qui offre une interface unifiée pour la gestion de l'accès à différents systèmes de gestion de base de données relationnelles (SGBDR), notamment MySQL, PostgreSQL et SQL Server. L'API permet d'exécuter des opérations CRUD (Create, Read, Update, Delete) de manière uniforme, indépendamment du SGBD utilisé.
 
 ## Structure du Projet
 Le projet suit la structure suivante :
 ```
-ma/
-└── ensa/
-    ├── db/
-    │   ├── DatabaseManager.java
-    │   └── impl/
-    │       ├── MySQLManager.java
-    │       ├── PostgreSQLManager.java
-    │       └── SQLServerManager.java
-    ├── util/
-    │   └── DBConfigLoader.java
-    └── Main.java (Exemple d'utilisation)
-resources/
-└── db.properties
+src/
+├── main/
+│   ├── java/
+│   │   └── ma/
+│   │       └── ensa/
+│   │           ├── db/
+│   │           │   ├── DatabaseManager.java
+│   │           │   └── impl/
+│   │           │       ├── MySQLManager.java
+│   │           │       ├── PostgreSQLManager.java
+│   │           │       └── SQLServerManager.java
+│   │           ├── util/
+│   │           │   └── DBConfigLoader.java
+│   │           └── Main.java
+│   └── resources/
+│       └── db.properties
+└── test/
+    └── java/
+        └── ma/
+            └── ensa/
+                └── db/
+                    └── impl/
+                        ├── DatabaseManagerTest.java
 ```
-
-## Architecture
-L'API est conçue avec une architecture modulaire, utilisant des interfaces et des classes d'implémentation pour chaque type de SGBD. L'interface `DatabaseManager` définit les méthodes communes pour la connexion, l'exécution de requêtes, et la gestion des résultats. Chaque gestionnaire (MySQL, PostgreSQL, SQL Server) implémente cette interface, permettant une gestion uniforme des différentes bases de données.
 
 ## Fonctionnalités
-1. **Connexion à la base de données** : Méthodes pour se connecter à un SGBD donné (type, URL, utilisateur, mot de passe).
-2. **Exécution de requêtes SQL** : Support pour les requêtes SELECT, INSERT, UPDATE, DELETE, avec retour des résultats sous forme de `List<Map<String, Object>>`.
-3. **Paramétrage dynamique** : Utilisation d'un fichier de configuration (.properties) pour stocker les paramètres de connexion.
-4. **Gestion des erreurs** : Gestion propre des exceptions SQL avec messages clairs et personnalisés, et fermeture automatique des connexions via try-with-resources.
-5. **Design modulaire** : Utilisation d'interfaces génériques et du polymorphisme pour gérer les différents SGBD.
-6. **Utilisation de Lombok** : Réduction du code boilerplate grâce aux annotations Lombok.
-7. **Tests unitaires** : Utilisation de JUnit pour tester les classes avec un jeu de données stocké dans un fichier .csv.
-
-## Dépendances
-- Lombok
-- MySQL Connector
-- PostgreSQL JDBC
-- SQL Server JDBC
-- JUnit
-
-## Génération du .jar
-Pour générer le fichier .jar, exécutez la commande suivante à la racine du projet :
-```bash
-mvn clean package
-```
-Le fichier .jar sera généré dans le dossier `target/`.
+1. **Support Multi-SGBD** : Gestion unifiée de MySQL, PostgreSQL et SQL Server
+2. **Opérations CRUD** :
+   - SELECT : Récupération des données avec retour sous forme de `List<Map<String, Object>>`
+   - INSERT : Ajout de nouveaux enregistrements
+   - DELETE : Suppression d'enregistrements
+3. **Gestion des Connexions** :
+   - Connexion automatique avec paramètres de configuration
+   - Fermeture propre des connexions
+   - Vérification de l'état de la connexion
+4. **Configuration Flexible** :
+   - Paramètres de connexion externalisés dans `db.properties`
+   - Support pour différentes configurations par SGBD
 
 ## Exemple d'Utilisation
-Voici un exemple d'utilisation de l'API :
 ```java
-import ma.ensa.db.DatabaseManager;
-import ma.ensa.db.impl.MySQLManager;
-import ma.ensa.util.DBConfigLoader;
+// Chargement des propriétés
+Properties props = DBConfigLoader.loadProperties("db.properties");
 
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+// Création d'un gestionnaire MySQL
+DatabaseManager mysqlManager = new MySQLManager(
+    props.getProperty("mysql.url") + "/" + props.getProperty("mysql.database"),
+    props.getProperty("mysql.username"),
+    props.getProperty("mysql.password")
+);
 
-public class Main {
-    public static void main(String[] args) {
-        try {
-            Properties props = DBConfigLoader.loadProperties("db.properties");
-            DatabaseManager mysqlManager = new MySQLManager(
-                    props.getProperty("mysql.url") + "/" + props.getProperty("mysql.database"),
-                    props.getProperty("mysql.username"),
-                    props.getProperty("mysql.password")
-            );
-            mysqlManager.connect();
-            List<Map<String, Object>> results = mysqlManager.executeQuery("SELECT * FROM employees");
-            for (Map<String, Object> row : results) {
-                System.out.println(row);
-            }
-            mysqlManager.disconnect();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+// Connexion
+mysqlManager.connect();
+
+// Exécution d'une requête SELECT
+List<Map<String, Object>> results = mysqlManager.executeQuery("SELECT * FROM employees");
+
+// Affichage des résultats
+for (Map<String, Object> row : results) {
+    System.out.println(row);
 }
+
+// Insertion de données
+int affectedRows = mysqlManager.executeUpdate(
+    "INSERT INTO employees VALUES (4, 'Test1', 'User1', 'test1.user1@email.com', 4700.00)"
+);
+
+// Fermeture de la connexion
+mysqlManager.disconnect();
+```
+
+## Configuration
+Le fichier `db.properties` doit contenir les paramètres de connexion pour chaque SGBD :
+```properties
+# MySQL
+mysql.url=jdbc:mysql://localhost:3306
+mysql.database=your_database
+mysql.username=your_username
+mysql.password=your_password
+
+# PostgreSQL
+postgresql.url=jdbc:postgresql://localhost:5432
+postgresql.database=your_database
+postgresql.username=your_username
+postgresql.password=your_password
+
+# SQL Server
+sqlserver.url=jdbc:sqlserver://localhost:1433;databaseName=your_database
+sqlserver.username=your_username
+sqlserver.password=your_password
 ```
 
 ## Tests
-Les tests unitaires sont écrits avec JUnit et utilisent un jeu de données stocké dans un fichier .csv. Les tests vérifient la connexion, l'exécution de requêtes, et la gestion des erreurs.
+Le projet inclut des tests unitaires pour chaque implémentation de SGBD, vérifiant :
+- La connexion à la base de données
+- L'exécution des requêtes SELECT
+- Les opérations d'insertion et de suppression
+- La gestion des erreurs
+
+## Dépendances
+- MySQL Connector
+- PostgreSQL JDBC
+- SQL Server JDBC
+- JUnit (pour les tests)
+
+## Compilation et Exécution
+Pour compiler et exécuter le projet :
+```bash
+mvn clean package
+java -jar target/api-java-1.0-SNAPSHOT.jar
+```
 
 ## Gestion des Erreurs
-L'API gère les erreurs de manière robuste, en fournissant des messages clairs et personnalisés pour les exceptions SQL. Les connexions, requêtes, et résultats sont automatiquement fermés grâce à l'utilisation de try-with-resources.
-
-## Documentation
-Pour plus d'informations sur l'utilisation de l'API, consultez le fichier `db.properties` pour les paramètres de connexion et les exemples de code dans `Main.java`.
+L'API gère les erreurs de manière robuste :
+- Vérification de l'état de la connexion
+- Gestion des exceptions SQL
+- Fermeture automatique des ressources
+- Messages d'erreur clairs et informatifs
